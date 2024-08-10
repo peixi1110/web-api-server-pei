@@ -1,24 +1,12 @@
-import {
-  Card,
-  Breadcrumb,
-  Form,
-  Button,
-  Input,
-  Space,
-  Select,
-  message,
-  Radio,
-  Upload
-} from 'antd'
+import { Card, Breadcrumb, Form, Button, Input, Space, Select, message, Radio, Upload } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import './index.scss'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { useState } from 'react'
-import { createArticleAPI } from '@/apis/article'
+import { useEffect, useState } from 'react'
+import { createArticleAPI, getArticleInfoAPI, undateArticleByIdAPI } from '@/apis/article'
 import { uploadPicAPI } from '@/apis/pictures'
-import { getUserInfoAPI } from '@/apis/userInfo'
 import { useCate } from '@/hooks/useCateList'
 import readFile from '@/utils/readFile'
 import { useUserInfo } from '@/hooks/useUserInfo'
@@ -30,6 +18,7 @@ const { Option } = Select
 const Publish = () => {
   const { cateList } = useCate()
   const { userInfoList } = useUserInfo()
+  const navigate = useNavigate()
 
   // upload data
   // problem: formatValue --> object
@@ -47,15 +36,24 @@ const Publish = () => {
       content,
       cover_img: {
         type: imageType,
-        images: imageList.map(item => item.response.data.url)
+        images: imageList.map(item => {
+          if (item.response)
+            return item.response.data.url
+          else 
+            return item.url
+        })
       },
       cate_id, 
       author_id,
       pub_date
     }
-    console.log(pub_date)
-    await createArticleAPI(reqData)
-    message.success('Publish successful!')
+    if (articleId){
+      await undateArticleByIdAPI({...reqData, id: articleId})
+    } else {
+      await createArticleAPI(reqData)
+    }
+    message.success('Publish successful!s')
+    navigate('/article')
   }
 
   const [imageList, setImageList] = useState([])
@@ -80,13 +78,35 @@ const Publish = () => {
     setImageType(type.target.value)
   }
 
+  // get article info by id
+  const [searchParams] = useSearchParams()
+  const articleId = searchParams.get('id')
+  const [ form ] = Form.useForm()
+  useEffect(() => {
+    async function getArticleDetail () {
+      const res = await getArticleInfoAPI(articleId)
+      const data = res.data.data
+      const { cover } = data.cover
+      form.setFieldsValue({
+        ...data, 
+        type: cover.type
+      })
+      setImageType(cover.type)
+      setImageList(cover.images.map(url => {
+        return {url}
+      }))
+    }
+    if (articleId) 
+      getArticleDetail()
+  },[articleId, form])
+
   return (
     <div className="publish">
       <Card
         title={
           <Breadcrumb items={[
             { title: <Link to={'/'}>Home</Link> },
-            { title: 'Publish articles' },
+            { title: `${articleId ? 'Edit' : 'Publish'} article` },
           ]}
           />
         }
@@ -96,6 +116,7 @@ const Publish = () => {
           wrapperCol={{ span: 16 }}
           onFinish={onFinish}
           validateTrigger="onBlur"
+          form={form}
         >
           {/* TITLE */}
           <Form.Item
@@ -133,9 +154,9 @@ const Publish = () => {
                 // problem: action url
                 action={'http://127.0.0.1:3007/my/picture/upload'}
                 onChange={onUploadChange}
-                // problem: headers={}
                 customRequest={onUpload}
                 maxCount={imageType}
+                fileList={imageList}
               >
                 <div style={{ marginTop: 8 }}>
                   <PlusOutlined />
@@ -158,7 +179,11 @@ const Publish = () => {
 
           <Form.Item wrapperCol={{ offset: 4 }}>
             <Space>
-              <Button size="large" type="primary" htmlType="submit">
+              <Button 
+                size="large" 
+                type="primary" 
+                htmlType="submit"
+              >
                 Publish
               </Button>
             </Space>

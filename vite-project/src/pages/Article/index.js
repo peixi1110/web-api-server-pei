@@ -126,7 +126,7 @@ const Article = () => {
   }
 
   // problem: cannot get data
-  const onConfirm = async (data) => {
+  const onConfirm = (data) => {
     console.log(data)
     // await deleteArticleAPI(data.id)
     // setReqData({

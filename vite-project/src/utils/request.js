@@ -30,9 +30,9 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use((response) => {
   // if token expired, turn to login page
   if (response.data.status === 1) {
-    // removeToken()
-    // router.navigate('/login')
-    // window.location.reload()
+    removeToken()
+    router.navigate('/login')
+    window.location.reload()
   }
     return response;
   }, (error) => {

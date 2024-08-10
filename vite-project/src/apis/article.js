@@ -17,10 +17,24 @@ export function getArticleListAPI (params) {
     })
 }
 
-
 export function deleteArticleAPI (id) {
     return request({
         url: `/my/article/deletearticle/${id}`, 
         method: 'POST'
+    })
+}
+
+export function getArticleInfoAPI (id) {
+    return request({
+        url:  `/my/article/getarticle/${id}`, 
+        method: 'GET'
+    })
+}
+
+export function undateArticleByIdAPI (data) {
+    return request({
+        url: '/my/article/updatearticle', 
+        methor: 'POST', 
+        data
     })
 }

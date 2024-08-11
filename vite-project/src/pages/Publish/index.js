@@ -5,12 +5,14 @@ import './index.scss'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { useEffect, useState } from 'react'
-import { createArticleAPI, getArticleInfoAPI, undateArticleByIdAPI } from '@/apis/article'
+import { createArticleAPI, getArticleInfoAPI, updateArticleByIdAPI } from '@/apis/article'
 import { uploadPicAPI } from '@/apis/pictures'
 import { useCate } from '@/hooks/useCateList'
 import readFile from '@/utils/readFile'
 import { useUserInfo } from '@/hooks/useUserInfo'
 import dayjs from 'dayjs'
+import { getToken } from '@/utils'
+import { type } from '@testing-library/user-event/dist/type'
 
 
 const { Option } = Select
@@ -19,63 +21,63 @@ const Publish = () => {
   const { cateList } = useCate()
   const { userInfoList } = useUserInfo()
   const navigate = useNavigate()
+  // get token 
+  const token = getToken()
 
   // upload data
-  // problem: formatValue --> object
   const onFinish = async (value) => {
-    if (imageList.length !== imageType) 
-    return message.warning('Image type and number of image are not match!')
+    // check whether type && length match 
+    // if (imageList.length !== imageType) 
+    // return message.warning('Image type and number of image are not match!')
 
     //get data
     const { title, content, cate_id } = value
-
     const author_id = userInfoList.id
     const pub_date = dayjs(new Date()).format('YYYY-MM-DD HH:mm')
+    // set data
     const reqData = {
       title,
       content,
       cover_img: {
         type: imageType,
-        images: imageList.map(item => {
-          if (item.response)
-            return item.response.data.url
-          else 
-            return item.url
-        })
+        images: imageList// .map(item => item.response.data.url)
+        // imageList.map(item => {
+        //   if (item.response)
+        //     return item.response.data.url
+        //   else 
+        //     return item.url
+        // })
       },
       cate_id, 
       author_id,
       pub_date
     }
-    if (articleId){
-      await undateArticleByIdAPI({...reqData, id: articleId})
-    } else {
+  
+    // if (articleId) {
+    //   await updateArticleByIdAPI({ ...reqData, id: articleId })
+    // } else {
       await createArticleAPI(reqData)
-    }
-    message.success('Publish successful!s')
-    navigate('/article')
+    // }
+    // message.success('Publish successful!s')
+    // navigate('/article')
   }
+  
 
+  
+  
+  // upload cover 
   const [imageList, setImageList] = useState([])
-  const onUpload = async () => {
-    //   const file=[]
-     const files =await Promise.all(imageList.map(item=>readFile(item.originFileObj)))
-     uploadPicAPI({
-      file:imageList.map((img,index)=>({
-        fileExt:img.name.split('.').pop(),
-        binary:files[index]
-      })),
-    })
-
-  }
   const onUploadChange = (value) => {
+    console.log(value)
     setImageList(value.fileList)
   }
 
-  const [imageType, setImageType] = useState(0)
-  const onTypeChange = (type) => {
-    setImageList('')
-    setImageType(type.target.value)
+  // init image type 
+  const defaultType = 1
+  const [imageType, setImageType] = useState(defaultType)
+  // change type
+  const onTypeChange = (e) => {
+    setImageType(e.target.value)
   }
 
   // get article info by id
@@ -106,7 +108,7 @@ const Publish = () => {
         title={
           <Breadcrumb items={[
             { title: <Link to={'/'}>Home</Link> },
-            { title: `${articleId ? 'Edit' : 'Publish'} article` },
+            // { title: `${articleId ? 'Edit' : 'Publish'} article` }
           ]}
           />
         }
@@ -139,8 +141,9 @@ const Publish = () => {
           </Form.Item>
           {/* COVER_IMG */}
           <Form.Item label="Cover">
-            <Form.Item name="cover_img" initialValue={0}>
-              <Radio.Group onChange={onTypeChange}>
+            <Form.Item name="cover_img">
+              <Radio.Group onChange={onTypeChange} defaultValue={defaultType}>
+              {/* <Radio.Group> */}
                 <Radio value={1}>Single Picture</Radio>
                 <Radio value={3}>Triple Picture</Radio>
                 <Radio value={0}>None Picture</Radio>
@@ -149,12 +152,12 @@ const Publish = () => {
             {imageType > 0 &&
               <Upload
                 name='cover_img'
+                action={'http://127.0.0.1:3007/public/cover'}
+                headers={{ 'Authorization': `${token}` }}
+                onChange={onUploadChange}
+                beforeUpload={() => false}
                 listType="picture-card"
                 showUploadList
-                // problem: action url
-                action={'http://127.0.0.1:3007/my/picture/upload'}
-                onChange={onUploadChange}
-                customRequest={onUpload}
                 maxCount={imageType}
                 fileList={imageList}
               >

@@ -31,7 +31,7 @@ export function getArticleInfoAPI (id) {
     })
 }
 
-export function undateArticleByIdAPI (data) {
+export function updateArticleByIdAPI (data) {
     return request({
         url: '/my/article/updatearticle', 
         methor: 'POST', 

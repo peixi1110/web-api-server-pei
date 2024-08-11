@@ -12,7 +12,7 @@ module.exports.add_article_schema = {
         cate_id: id, 
         author_id: id, 
         content, 
-        pub_date,
+        pub_date, 
     }, 
 }
 

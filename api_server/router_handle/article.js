@@ -1,8 +1,10 @@
 const db = require('../database/index')
-const mongoose = require('mongoose')
-
+const uploadPic = require('../middleWare/unploadMiddleWare')
 
 module.exports.addArticle = (req, res) => {
+    
+    uploadPic(req.cover_img)
+
     const sqlInsertInto = 'INSERT INTO ev_article SET ?'
     db.query(sqlInsertInto, req.body, (err, results) => {
         if (err) {
@@ -128,7 +130,7 @@ module.exports.resumeArticleById = (req, res) => {
 
 // get article cintent and infomation by id
 module.exports.getArticleById = (req, res) => {
-    const sqlSelect = "SELECT * FROM ev_article WHERE id=? AND state='published'"
+    const sqlSelect = "SELECT * FROM ev_article WHERE id=?"
     db.query(sqlSelect, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)

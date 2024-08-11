@@ -33,7 +33,6 @@ app.use((req, res, next) => {
 // must before router 
 const config = require('./config')
 const expressJWT= require('express-jwt')
-
 app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//]}))
 
 
@@ -51,10 +50,7 @@ const articleRouter = require('./router/article')
 app.use('/my/article', articleRouter)
 
 const pictureRouter = require('./router/pictures')
-app.use('/my/picture', pictureRouter)
-
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use('/public', pictureRouter)
 
 app.use((err, req, res, next) => {
     if (err instanceof joi.ValidationError) {

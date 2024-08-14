@@ -2,7 +2,7 @@ const db = require('../database/index')
 const bcrypt = require('bcryptjs')
 
 module.exports.getUserInfo = (req, res) => {
-    const sqlSELECT = `SELECT id, username, nickname, email, user_pic FROM ev_users WHERE id=?`
+    const sqlSELECT = `SELECT id, username, nickname, email, avatar FROM user_info WHERE id=?`
     db.query(sqlSELECT, req.user.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -19,7 +19,7 @@ module.exports.getUserInfo = (req, res) => {
 }
 
 module.exports.updateUserInfo = (req, res) =>{
-    const sqlUpdate = 'UPDATE ev_users SET ? WHERE id=?'
+    const sqlUpdate = 'UPDATE user_info SET ? WHERE id=?'
     db.query(sqlUpdate, [req.body, req.body.id], (err, results) => {
         if (err) {
             res.cc(err)
@@ -32,7 +32,7 @@ module.exports.updateUserInfo = (req, res) =>{
 }
 
 module.exports.updatePwd = (req, res) => {
-    const sqlSelect = 'SELECT * FROM ev_users WHERE id=?'
+    const sqlSelect = 'SELECT * FROM user_info WHERE id=?'
     db.query(sqlSelect, req.user.id, (err, results) => {
         if (err) {
             res.cc(err)
@@ -45,7 +45,7 @@ module.exports.updatePwd = (req, res) => {
         if (!compareResult) {
             return res.cc('Wrong old password!')
         }
-        const sqlUpdatePwd = 'UPDATE ev_users SET password=? WHERE id=?'
+        const sqlUpdatePwd = 'UPDATE user_info SET password=? WHERE id=?'
         const newPwd = bcrypt.hashSync(req.body.newPwd, 10)
         db.query(sqlUpdatePwd, [newPwd, req.user.id], (err, results) => {
             if (err) {
@@ -62,7 +62,7 @@ module.exports.updatePwd = (req, res) => {
 }
 
 module.exports.updateAvatar = (req, res) => {
-    const sqlUpdateAvatar = 'UPDATE ev_users SET user_pic=? WHERE id=?'
+    const sqlUpdateAvatar = 'UPDATE user_info SET avatar=? WHERE id=?'
     db.query(sqlUpdateAvatar, [req.body.avatar, req.user.id], (err, results) => {
         if (err) {
             res.cc(err)

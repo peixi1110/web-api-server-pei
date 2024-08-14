@@ -9,7 +9,7 @@ module.exports.regUser = (req, res) => {
     const userinfo = req.body
     
     // same username or not
-    const sqlSELECT = 'SELECT * FROM ev_users WHERE username=?'
+    const sqlSELECT = 'SELECT * FROM user_info WHERE username=?'
     db.query(sqlSELECT, userinfo.username, (err, results) => {
         // whether sql works 
         if (err) {
@@ -25,9 +25,8 @@ module.exports.regUser = (req, res) => {
 
         // username can be used
         userinfo.password = bcrypt.hashSync(userinfo.password, 10)
-        // console.log('password after bcrypt: \n' + userinfo.password)
 
-        const sqlInsert = 'INSERT INTO ev_users SET ?'
+        const sqlInsert = 'INSERT INTO user_info SET ?'
         db.query(sqlInsert, {username: userinfo.username, password: userinfo.password}, 
             (err, results) => {
                 if (err) {
@@ -51,7 +50,7 @@ module.exports.regUser = (req, res) => {
 // function -- login 
 module.exports.login = (req, res) => {
     const userinfo = req.body
-    const sqlSELECT = 'SELECT * FROM ev_users WHERE username=?'
+    const sqlSELECT = 'SELECT * FROM user_info WHERE username=?'
     db.query(sqlSELECT, userinfo.username, (err, results) => {
         // whether sql works 
         if (err) {
@@ -71,7 +70,7 @@ module.exports.login = (req, res) => {
         }
 
         // user = results[] - password - user_pic
-        const user = {...results[0], password: '', user_pic: ''}
+        const user = {...results[0], password: '', avatar: ''}
         // encode 
         const tokenStr = jwt.sign(user, config.jwtSecretKey, {
             expiresIn: config.expiresIn

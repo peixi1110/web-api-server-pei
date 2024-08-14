@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from '@/assets/error.png'
 import { useCate } from '@/hooks/useCateList'
-import { deleteArticleAPI, getArticleListAPI } from '@/apis/article'
+import { deleteArticleAPI, getArticleListAPI, getArticlesBySelectAPI } from '@/apis/article'
 
 
 const { Option } = Select
@@ -14,12 +14,13 @@ const { RangePicker } = DatePicker
 const Article = () => {
   const navigate = useNavigate()
   const { cateList } = useCate()
-
+  
+  // init formValue
   const [reqData, setReqData] = useState({
-    status: '',
-    cate_id: '',
-    begin_pubdate: '',
-    end_pubdate: '',
+    state: '', 
+    cate_id: '', 
+    start_date: '',
+    end_date: '',
     page: 1,
     perpage: 5,
   })
@@ -42,14 +43,27 @@ const Article = () => {
   }
   const columns = [
     // problem: show img
-    // {
-    //   title: 'Cover',
-    //   dataIndex: 'cover_img',
-    //   width: 120,
-    //   render: cover => {
-    //     return <img src={cover.images[0] || img404} width={80} height={60} alt="" />
-    //   }
-    // },
+    {
+      title: 'Cover',
+      dataIndex: 'cover_img',
+      width: 120,
+      render: cover_img => {
+        const cover = JSON.parse(cover_img)
+        const imageUrl = cover[0].url.replace(/^\//, '')
+        const url = `http://127.0.0.1:3007/${imageUrl}`
+        return <img
+          id='url'
+          src={url || img404}
+          width={80}
+          height={60}
+          alt=""
+          style={{
+            objectFit: 'contain',
+            overflow: 'hidden'
+          }}
+        />
+      }
+    },
     {
       title: 'Title',
       dataIndex: 'title',
@@ -90,7 +104,7 @@ const Article = () => {
             <Popconfirm
               title='Delete'
               description='Are you sure to delete this article?'
-              onConfirm={onConfirm}
+              onConfirm={() => onConfirm(data)}
               okText='Yes'
               cancelText='No'
             >
@@ -109,29 +123,40 @@ const Article = () => {
 
   // get form data
   const onFinish = (formValue) => {
+    console.log(formValue)
     setReqData({
-      ...reqData, 
+      ...reqData,
       cate_id: formValue.cate_id, 
-      status: formValue.status, 
-      begin_pubdate: formValue.date[0].format('YYYY-MM-DD'),
-      end_pubdate: formValue.date[1].format('YYYY-MM-DD')
+      state: formValue.state, 
+      start_date: formValue.date[0].format('YYYY-MM-DD'),
+      end_date: formValue.date[1].format('YYYY-MM-DD')
     })
+    console.log(reqData)
+    console.log(reqData)
+    useEffect(() => {
+      async function getList() {
+        const res = await getArticlesBySelectAPI(reqData)
+        setCount(res.data.total)
+        setArticleList(res.data.data)
+      }
+      getList()
+    }, [reqData])
   }
 
+  // change page 
   const onPageChange = (page) => {
     setReqData({
       ...reqData, 
       page
     })
+    
   }
-
-  // problem: cannot get data
-  const onConfirm = (data) => {
-    console.log(data)
-    // await deleteArticleAPI(data.id)
-    // setReqData({
-    //   ...reqData
-    // })
+  // delete article
+  const onConfirm = async (data) => {
+    await deleteArticleAPI(data.id)
+    setReqData({
+      ...reqData
+    })
   }
   
   return (
@@ -145,8 +170,11 @@ const Article = () => {
         }
         style={{ marginBottom: 20 }}
       >
-        <Form initialValues={{ status: 0 }} onFinish={onFinish}>
-          <Form.Item label="state" name="status">
+        <Form
+          initialValues={{ state: 0 }}
+          onFinish={onFinish}
+        >
+          <Form.Item label="state" name="state">
             <Radio.Group>
               <Radio value={0}>All</Radio>
               <Radio value={1}>Reviewing</Radio>

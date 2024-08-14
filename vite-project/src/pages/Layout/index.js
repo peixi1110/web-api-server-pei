@@ -1,4 +1,4 @@
-import { Layout, Menu, Popconfirm } from 'antd'
+import { Layout, Menu, message, Popconfirm } from 'antd'
 import { HomeOutlined, DiffOutlined, EditOutlined, LogoutOutlined } from '@ant-design/icons'
 import './index.scss'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -50,6 +50,7 @@ const MyLayout = () => {
   const onConfirm = () => {
     dispatch(clearUserInfo())
     navigate('login')
+    message.success('Logout successful!')
   }
 
   // get userInfo --> username

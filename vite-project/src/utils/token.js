@@ -4,7 +4,7 @@ const TOKENKEY = 'token_key'
 
 // store woken 
 function setToekn (token) {
-    localStorage.setItem(TOKENKEY, token)
+    localStorage.setItem(TOKENKEY, token) 
 }
 
 // get token

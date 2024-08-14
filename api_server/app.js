@@ -33,7 +33,14 @@ app.use((req, res, next) => {
 // must before router 
 const config = require('./config')
 const expressJWT= require('express-jwt')
-app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//]}))
+app.use(expressJWT({ secret: config.jwtSecretKey })
+    .unless({ 
+        path: [
+            /^\/api\//, 
+            /^\/public\//
+        ] 
+    })
+)
 
 
 // router
@@ -49,15 +56,19 @@ app.use('/my/article', artcateRouter)
 const articleRouter = require('./router/article')
 app.use('/my/article', articleRouter)
 
-const pictureRouter = require('./router/pictures')
+const pictureRouter = require('./router/uploadPic')
 app.use('/public', pictureRouter)
+
+const avatarRouter = require('./router/uploadAvatar')
+app.use('/public', avatarRouter)
+
 
 app.use((err, req, res, next) => {
     if (err instanceof joi.ValidationError) {
-        return res.send(err)
+        return res.cc(err)
     }
     if (err.name === 'UnauthorizedError') {
-        return res.send('Authentication failed!')
+        return res.cc('Authentication failed!')
     }
     // unkown error
     res.send(err.message)

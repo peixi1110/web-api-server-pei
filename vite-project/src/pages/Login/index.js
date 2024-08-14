@@ -31,7 +31,7 @@ const Login = () => {
           <Form.Item 
             name="username"
             // debug
-            initialValue={process.env.NODE_ENV==='development'?'ONE':''}
+            initialValue={process.env.NODE_ENV==='development'?'root':''}
             // Check in order of rules
             rules={[
                 {
@@ -49,7 +49,7 @@ const Login = () => {
           <Form.Item 
             name="password"
             // debug
-            initialValue={process.env.NODE_ENV==='development'?'111111':''}
+            initialValue={process.env.NODE_ENV==='development'?'root-psw':''}
             rules={[
                 { 
                     required: true, 

@@ -1,10 +1,17 @@
 import { request } from "@/utils"
 
-export  function uploadPicAPI(data){
+export function uploadPicAPI(data) {
     return request({
-        
-        url: '/my/picture/upload', 
-        method: 'POST', 
+        url: '/public/cover',
+        method: 'POST',
+        data
+    })
+}
+
+export function uploadAvatarAPI(data) {
+    return request({
+        url: '/public/avatar',
+        method: 'POST',
         data
     })
 }

@@ -3,7 +3,7 @@ const db = require('../database/index')
 
 // get list
 module.exports.getArticleCates = (req, res) => {
-    const sqlSelect = 'SELECT * FROM ev_article_cates WHERE is_delete=0 ORDER BY id ASC'
+    const sqlSelect = 'SELECT * FROM article_cates WHERE is_delete=0 ORDER BY id ASC'
     db.query(sqlSelect, (err, results) => {
         if (err) {
             res.cc(err)
@@ -20,7 +20,7 @@ module.exports.getArticleCates = (req, res) => {
 module.exports.addAriticleCates = (req, res) => {
     
     // check exists
-    const sqlSelect = 'SELECT * FROM ev_article_cates WHERE name=? OR alias=?'
+    const sqlSelect = 'SELECT * FROM article_cates WHERE name=? OR alias=?'
     db.query(sqlSelect, [req.body.name, req.body.alias], (err, results) => {
         if (err) {
             return res.cc(err)
@@ -39,7 +39,7 @@ module.exports.addAriticleCates = (req, res) => {
     })
 
     // add 
-    const sqlInsertInto = 'INSERT INTO ev_article_cates SET ?'
+    const sqlInsertInto = 'INSERT INTO article_cates SET ?'
     db.query(sqlInsertInto, req.body, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -55,7 +55,7 @@ module.exports.addAriticleCates = (req, res) => {
 // delete cate by id
 module.exports.deleteCateById = (req, res) => {
     // check exist
-    const sqlSelect = 'SELECT * FROM ev_article_cates WHERE id=?'
+    const sqlSelect = 'SELECT * FROM article_cates WHERE id=?'
     db.query(sqlSelect, req.params.id, (err, result) => {
         if (err) {
             return res.cc(err)
@@ -71,7 +71,7 @@ module.exports.deleteCateById = (req, res) => {
         }
     })
     // delete
-    const sqlUpdate = 'UPDATE ev_article_cates SET is_delete=1 WHERE id=?'
+    const sqlUpdate = 'UPDATE article_cates SET is_delete=1 WHERE id=?'
     db.query(sqlUpdate, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -87,7 +87,7 @@ module.exports.deleteCateById = (req, res) => {
 // resume cate by id
 module.exports.resumeCateById = (req, res) => {
     // check exist
-    const sqlSelect = 'SELECT * FROM ev_article_cates WHERE id=?'
+    const sqlSelect = 'SELECT * FROM article_cates WHERE id=?'
     db.query(sqlSelect, req.params.id, (err, result) => {
         if (err) {
             return res.cc(err)
@@ -103,7 +103,7 @@ module.exports.resumeCateById = (req, res) => {
         }
     })
     // resume
-    const sqlUpdate = 'UPDATE ev_article_cates SET is_delete=0 WHERE id=?'
+    const sqlUpdate = 'UPDATE article_cates SET is_delete=0 WHERE id=?'
     db.query(sqlUpdate, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -118,7 +118,7 @@ module.exports.resumeCateById = (req, res) => {
 
 // get cate by id
 module.exports.getArtCateById = (req, res) => {
-    const sqlSelect = "SELECT * FROM ev_article_cates WHERE id=?"
+    const sqlSelect = "SELECT * FROM article_cates WHERE id=?"
     db.query(sqlSelect, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -137,7 +137,7 @@ module.exports.getArtCateById = (req, res) => {
 // update
 module.exports.updateCate = (req, res) => {
     // check exists
-    const sqlSelect = 'SELECT * FROM ev_article_cates WHERE id<>? AND (name=? OR alias=?)'
+    const sqlSelect = 'SELECT * FROM article_cates WHERE id<>? AND (name=? OR alias=?)'
     db.query(sqlSelect, [req.body.id, req.body.name, req.body.alias], (err, results) => {
         if (err) {
             return res.cc(err)
@@ -155,7 +155,7 @@ module.exports.updateCate = (req, res) => {
         }
     })
     // update
-    const sqlUpdate = 'UPDATE ev_article_cates SET ? WHERE id=?'
+    const sqlUpdate = 'UPDATE article_cates SET ? WHERE id=?'
     db.query(sqlUpdate, [req.body, req.body.id], (err, results) => {
         if (err) {
             return res.cc(err)

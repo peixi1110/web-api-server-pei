@@ -1,11 +1,9 @@
 const db = require('../database/index')
-const uploadPic = require('../middleWare/unploadMiddleWare')
 
 module.exports.addArticle = (req, res) => {
-    
-    uploadPic(req.cover_img)
+    req.body.cover_img = JSON.stringify(req.body.cover_img)
 
-    const sqlInsertInto = 'INSERT INTO ev_article SET ?'
+    const sqlInsertInto = `INSERT INTO articles SET ?`
     db.query(sqlInsertInto, req.body, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -21,7 +19,7 @@ module.exports.addArticle = (req, res) => {
 // get article info 
 module.exports.getArticleInfo = (req, res) => {
     
-    const sqlSelect = "SELECT id, title, pub_date, author_id, cover_img, state FROM ev_article WHERE is_delete=0 ORDER BY id ASC"
+    const sqlSelect = "SELECT id, title, pub_date, author_id, cover_img, state FROM articles WHERE is_delete=0 ORDER BY id ASC"
     db.query(sqlSelect, (err, results) => {
         if (err) {
             res.cc(err)
@@ -39,7 +37,7 @@ module.exports.getArticleInfo = (req, res) => {
 // update article contents by id 
 module.exports.updateArticleById = (req, res) => {
     // check exist 
-    const sqlSelect = 'SELECT * FROM ev_article WHERE id=?'
+    const sqlSelect = 'SELECT * FROM articles WHERE id=?'
     db.query(sqlSelect, req.body.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -51,7 +49,7 @@ module.exports.updateArticleById = (req, res) => {
         }
     })
     // update
-    const sqlUpdate = 'UPDATE ev_article SET ? WHERE id=?'
+    const sqlUpdate = 'UPDATE articles SET ? WHERE id=?'
     db.query(sqlUpdate, [req.body, req.body.id], (err, results) => {
         if (err) {
             return res.cc(err)
@@ -67,7 +65,7 @@ module.exports.updateArticleById = (req, res) => {
 // delete article by id 
 module.exports.deleteArticleById = (req, res) => {
     // check exist
-    const sqlSelect = 'SELECT * FROM ev_article WHERE id=?'
+    const sqlSelect = 'SELECT * FROM articles WHERE id=?'
     db.query(sqlSelect, req.params.id, (err, result) => {
         if (err) {
             return res.cc(err)
@@ -83,7 +81,7 @@ module.exports.deleteArticleById = (req, res) => {
         }
     })
     // delete
-    const sqlUpdate = 'UPDATE ev_article SET is_delete=1 WHERE id=?'
+    const sqlUpdate = 'UPDATE articles SET is_delete=1 WHERE id=?'
     db.query(sqlUpdate, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -99,7 +97,7 @@ module.exports.deleteArticleById = (req, res) => {
 // resume article by id 
 module.exports.resumeArticleById = (req, res) => {
     // check exist
-    const sqlSelect = 'SELECT * FROM ev_article WHERE id=?'
+    const sqlSelect = 'SELECT * FROM articles WHERE id=?'
     db.query(sqlSelect, req.params.id, (err, result) => {
         if (err) {
             return res.cc(err)
@@ -115,7 +113,7 @@ module.exports.resumeArticleById = (req, res) => {
         }
     })
     // resume
-    const sqlUpdate = 'UPDATE ev_article SET is_delete=0 WHERE id=?'
+    const sqlUpdate = 'UPDATE articles SET is_delete=0 WHERE id=?'
     db.query(sqlUpdate, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -130,7 +128,7 @@ module.exports.resumeArticleById = (req, res) => {
 
 // get article cintent and infomation by id
 module.exports.getArticleById = (req, res) => {
-    const sqlSelect = "SELECT * FROM ev_article WHERE id=?"
+    const sqlSelect = "SELECT * FROM articles WHERE id=?"
     db.query(sqlSelect, req.params.id, (err, results) => {
         if (err) {
             return res.cc(err)
@@ -149,3 +147,32 @@ module.exports.getArticleById = (req, res) => {
     })
 }
 
+// get articles by time period 
+module.exports.getArticlesBySelect = (req, res) => {
+    console.log(req.body)
+    const sqlSelect = "SELECT * FROM articles WHERE is_delete=0 ORDER BY id ASC"
+    db.query(sqlSelect, (err, results) => {
+        if (err) {
+            return res.cc(err)
+        }
+        
+        const state = req.body.state
+        const cate_id = req.body.cate_id
+        const start_date = req.body.start_date
+        const end_date = req.body.end_date
+
+        const selectedResult = results.filter(articles => 
+            (state === 0 || articles.state === state) && 
+            (cate_id === 0 || articles.cate_id === cate_id) && 
+            (start_date === '1900-01-01' || articles.pub_date >= start_date) && 
+            (start_date === '1900-01-01' || articles.pub_date < end_date)
+        )
+
+        res.send({
+            status: 0,
+            message: 'Get articles successful!',
+            data: selectedResult, 
+            total: selectedResult.length
+        })
+    })
+}

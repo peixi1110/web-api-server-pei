@@ -3,7 +3,6 @@ import axios from "axios"
 import { getToken, removeToken } from "./token";
 import router from "@/router";
 
-
 // 1. root url
 // 2. expire time
 const request = axios.create ({ 
@@ -29,7 +28,8 @@ request.interceptors.request.use((config) => {
 // Add a response interceptor
 request.interceptors.response.use((response) => {
   // if token expired, turn to login page
-  if (response.data.status === 1) {
+  // console.log(response.data)
+  if (response.data.status === 1 && response.data.message === 'Authentication failed!') {
     removeToken()
     router.navigate('/login')
     window.location.reload()
@@ -37,6 +37,7 @@ request.interceptors.response.use((response) => {
     return response;
   }, (error) => {
     return Promise.reject(error);
+  
   });
 
 export { request }

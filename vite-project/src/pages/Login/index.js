@@ -6,8 +6,6 @@ import { fetchLogin } from '@/store/modules/user'
 import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
-    // const emailFormat = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ 
-    // const mobileFormat = /^1[3-9]\d{9}$/
     const usernameFormat = /^[\S]{1,10}$/
 
     const dispatch = useDispatch()
@@ -15,11 +13,9 @@ const Login = () => {
     
     const onFinish = async (values) => {
         // Triggering Asynchronous action fetchLogin 
-        await dispatch(fetchLogin(values))
+        const res = await dispatch(fetchLogin(values))
         // Jump to user page
         navigate('/')
-        // whether right user & password
-        message.success('Login Successful!')
     }
 
   return (
@@ -49,7 +45,7 @@ const Login = () => {
           <Form.Item 
             name="password"
             // debug
-            initialValue={process.env.NODE_ENV==='development'?'root-psw':''}
+            initialValue={process.env.NODE_ENV==='development'?'newpassword':''}
             rules={[
                 { 
                     required: true, 

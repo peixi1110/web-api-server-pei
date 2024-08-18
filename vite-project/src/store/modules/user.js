@@ -3,6 +3,7 @@ import { removeToken } from "@/utils";
 import { setToekn as _setToken, getToken } from "@/utils";
 import { loginAPI } from '@/apis/user'
 import { getUserInfoAPI } from '@/apis/userInfo'
+import { message } from "antd";
 
 const userStore = createSlice ({
     name: "user", 
@@ -41,8 +42,13 @@ const fetchLogin = (loginForm) => {
         // send asynchronous request
         // const res = await request.post('/authorizations', loginForm)
         const res = await loginAPI(loginForm)
+        if (res.data.status ===0) {
         // submit synchronous action to store token
-        dispatch(setToken(res.data.token))
+            dispatch(setToken(res.data.token))
+            message.success('Login successful!')
+        } else {
+            message.error('Wrong username or password.')
+        }
     }
 }
 

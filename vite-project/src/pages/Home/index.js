@@ -1,41 +1,107 @@
-// import * as echarts from 'echarts'
-// import { useEffect } from 'react';
 
-const Home = () => {
+import { useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { Button, Card, Avatar } from 'antd';
+const { Meta } = Card
+import './index.scss'
+import img404 from '@/assets/error.png'
+import { useEffect, useState } from 'react';
+import { getUserInfoAPI } from '@/apis/userInfo';
 
-    // useEffect(() => {
-    //     // make sure dom avaliable
-    //     // get dom node
-    //     const  chartDom = document.getElementById('main');
-    //     // init
-    //     const  myChart = echarts.init(chartDom);
-    //     // chart parameter
-    //     const option = {
-    //         xAxis: {
-    //             type: 'category',
-    //             data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    //         },
-    //         yAxis: {
-    //             type: 'value'
-    //         },
-    //         series: [
-    //             {
-    //             data: [120, 200, 150, 80, 70, 110, 130],
-    //             type: 'bar'
-    //         }]
-    //     }
+const UserInfo = () => {
+  const userInfo = useSelector(state => state.user.userInfo.data)
+  const userId = userInfo?.id
 
-    //     // use parameter to complete rendring 
-    //     option && myChart.setOption(option);
-    // }, [])
+  const [avatar, setAvatar] = useState([])
+  useEffect(() => {
+    async function getAvatar() {
+      const res = await getUserInfoAPI(userId)
+      const url = JSON.parse(res.data.data.avatar)
+      if (url[0]) {
+        const avatarUrl = url[0].url.replace(/^\//, '')
+        setAvatar(`http://127.0.0.1:3007/${avatarUrl}`)
+        console.log(avatarUrl)
+      }
+    }
+    getAvatar()
+  }, [userId])
 
-    return (
-    <div>
-        {/*<div id='main' style={{width: '500px', height: '400px'}}>
-        </div>*/}
-        This is Home
-    </div>
-    )
-}
+  const navigate = useNavigate()
+  const onClickEdit = () => {
+    navigate('/editinfo')
+  }
 
-export default Home
+  const onClickChangePsw = () => {
+    navigate('/changepsw')
+  }
+
+  return (
+    <Card
+      title="My Information"
+      className='userInfoCard'
+    >
+      {avatar.length > 0 &&
+        <Meta
+          avatar={
+            <Avatar
+              shape="square"
+              src={avatar.length > 0 ? avatar : img404}
+              className='avatar'
+            // size={'large'}
+            />
+          }
+        />
+      }
+      <p className='userInfoRow'>
+        <strong className='label'>
+          Id:
+        </strong>
+        <span className='content'>
+          user_{userInfo?.id}
+        </span>
+      </p>
+      <p className='userInfoRow'>
+        <strong className='label'>
+          Username:
+        </strong>
+        <span className='content'>
+          {userInfo?.username}
+        </span>
+      </p>
+      <p className='userInfoRow'>
+        <strong className='label'>
+          Nickname:
+        </strong>
+        <span className={`content ${!userInfo?.nickname ? 'default-info' : ''}`}>
+          {userInfo?.nickname ? userInfo?.nickname : 'User has not set a nickname. '}
+        </span>
+      </p>
+      <p className='userInfoRow'>
+        <strong className='label'>
+          Email:
+        </strong>
+        <span className={`content ${!userInfo?.email ? 'default-info' : ''}`}>
+          {userInfo?.email ? userInfo?.email : 'User has not set a email. '}
+        </span>
+      </p>
+      <Button
+        type="primary"
+        className='editButton'
+        onClick={onClickEdit}
+      >
+        Edit
+      </Button>
+
+      <Button
+        type="primary"
+        className='editButton'
+        onClick={onClickChangePsw}
+      >
+        Change Password
+      </Button>
+
+    </Card>
+  );
+};
+
+export default UserInfo;

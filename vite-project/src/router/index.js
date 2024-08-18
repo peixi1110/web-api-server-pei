@@ -4,6 +4,8 @@ import Login from "@/pages/Login";  // "src/pages/Login"
 import Article from "@/pages/Article";
 import Publish from "@/pages/Publish";
 import Home from "@/pages/Home";
+import Edit from "@/pages/Edit"
+import ChangePsw from "@/pages/ChangePsw"
 
 import { createBrowserRouter } from "react-router-dom";
 import { AuthRoute } from "@/components/AuthRoute"
@@ -16,7 +18,15 @@ const router = createBrowserRouter([
         children: [
             {
                 path: '', 
-                element: <Home />
+                element: <Home />,
+            }, 
+            {
+                path: 'editinfo', 
+                element: <Edit />
+            }, 
+            {
+                path: 'changepsw', 
+                element: <ChangePsw />
             }, 
             {
                 path: 'article', 
@@ -26,7 +36,6 @@ const router = createBrowserRouter([
                 path: 'publish', 
                 element: <Publish />
             },
-
         ]
     }, 
     {

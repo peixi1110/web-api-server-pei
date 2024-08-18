@@ -55,13 +55,14 @@ const MyLayout = () => {
 
   // get userInfo --> username
   const name = useSelector(state => state.user.userInfo.data?.username)
+  const nickname = useSelector(state => state.user.userInfo.data?.nickname)
 
   return (
     <Layout>
       <Header className="header">
         <div className="logo" />
         <div className="user-info">
-          <span className="user-name">{name}</span>
+          <span className="user-name">{nickname? nickname : name}</span>
           <span className="user-logout">
             {/* pop up */}
             <Popconfirm 

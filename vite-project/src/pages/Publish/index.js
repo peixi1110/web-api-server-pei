@@ -1,16 +1,17 @@
 import { Card, Breadcrumb, Form, Button, Input, Space, Select, message, Radio, Upload } from 'antd'
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import './index.scss'
+import { useEffect, useState } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { useEffect, useState } from 'react'
+import './index.scss'
+import dayjs from 'dayjs'
+
 import { createArticleAPI, getArticleInfoAPI, updateArticleByIdAPI } from '@/apis/article'
+import { deletePicAPI } from '@/apis/pictures'
 import { useCate } from '@/hooks/useCateList'
 import { useUserInfo } from '@/hooks/useUserInfo'
-import dayjs from 'dayjs'
 import { getToken } from '@/utils'
-
 
 const { Option } = Select
 
@@ -22,17 +23,19 @@ const Publish = () => {
   const token = getToken()
   
   // set states
-  const [imageList, setImageList] = useState([])   // init image list
-  const [imageType, setImageType] = useState(1)   // init image type
+  const [imageList, setImageList] = useState([])    // init image list
+  const [imageType, setImageType] = useState(1)    // init image type
+  const [deleteList, SetDeleteList] = useState([])    // init list to delete 
 
   // upload data
   const onFinish = async (value) => {
     // check whether type && length match 
+    // todo
     if (imageList.length > imageType)
       return message.warning('Image type and number of image are not match!')
 
     //get data
-    const { title, content, cate_id } = value
+    const { title, content, cate_id, state } = value
     const author_id = userInfoList.id
     const pub_date = dayjs(new Date()).format('YYYY-MM-DD HH:mm')
 
@@ -50,8 +53,10 @@ const Publish = () => {
       cover_img_type: imageType,
       cate_id,
       author_id,
-      pub_date
+      pub_date, 
+      state: state
     }
+    
 
     if (articleId) {
       await updateArticleByIdAPI({ ...reqData, id: articleId })
@@ -62,16 +67,25 @@ const Publish = () => {
       message.success('Publish successful!')
       navigate('/article')
     }
+
+    // delete images
+    await deleteList.forEach(url => deletePicAPI(url))
   }
 
+  // upload covers & show
   const onUploadChange = (value) => {
     setImageList(value.fileList)
   }
 
+  // remove cover, set toDeleteList, when click 'finish', delete all no-use cover 
   const onRemoveChange = (value) => {
-    
+    const imageDel = value.url
+    SetDeleteList([
+      ...deleteList, 
+      imageDel
+    ])
   }
-  
+
   // change type
   const onTypeChange = (e) => {
     setImageType(e.target.value)
@@ -92,7 +106,6 @@ const Publish = () => {
         cover: data.cover_img_type
       })
       const coverList = JSON.parse(data.cover_img)
-      console.log(coverList)
       setImageType(data.cover_img_type)
       setImageList(coverList.map(item => { return {url: `http://127.0.0.1:3007${item.url}`} }))
     }
@@ -106,7 +119,7 @@ const Publish = () => {
       <Card
         title={
           <Breadcrumb items={[
-            { title: <Link to={'/'}>Home</Link> },
+            { title: <Link to={'/article'}>Manage</Link> },
             { title: `${articleId ? 'Edit' : 'Publish'} article` }
           ]}
           />
@@ -115,7 +128,7 @@ const Publish = () => {
         <Form
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 16 }}
-          initialValues={{ cover: 1 }}
+          initialValues={{ cover: 1, state: 3 }}
           onFinish={onFinish}
           validateTrigger="onBlur"
           form={form}
@@ -182,15 +195,27 @@ const Publish = () => {
               placeholder="Please enter article content"
             />
           </Form.Item>
-
+          <Form.Item name='state' noStyle>
+            <Input type='hidden' />
+          </Form.Item>
+          {/* PUBLISH || SAVE */}
           <Form.Item wrapperCol={{ offset: 4 }}>
             <Space>
               <Button
                 size="large"
                 type="primary"
                 htmlType="submit"
+                onClick={() => form.setFieldsValue({ state: 1 })}
               >
                 Publish
+              </Button>
+              <Button
+                size="large"
+                type="primary"
+                htmlType="submit"
+                onClick={() => form.setFieldsValue({ state: 3 })}
+              >
+                Save
               </Button>
             </Space>
           </Form.Item>

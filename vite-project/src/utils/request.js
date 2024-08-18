@@ -28,7 +28,6 @@ request.interceptors.request.use((config) => {
 // Add a response interceptor
 request.interceptors.response.use((response) => {
   // if token expired, turn to login page
-  // console.log(response.data)
   if (response.data.status === 1 && response.data.message === 'Authentication failed!') {
     removeToken()
     router.navigate('/login')

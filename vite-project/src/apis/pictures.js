@@ -15,3 +15,19 @@ export function uploadAvatarAPI(data) {
         data
     })
 }
+
+export function deletePicAPI(data) {
+    return request({
+        url: '/public/cover/delete', 
+        method: 'DELETE', 
+        data
+    })
+}
+
+export function deleteAvatarAPI(data) {
+    return request({
+        url: '/public/avatar/delete', 
+        method: 'DELETE', 
+        data
+    })
+}

@@ -6,6 +6,8 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
 import img404 from '@/assets/error.png'
 import { useCate } from '@/hooks/useCateList'
 import { deleteArticleAPI, getArticleListAPI, getArticlesBySelectAPI } from '@/apis/article'
+import dayjs from 'dayjs'
+
 
 
 const { Option } = Select
@@ -14,12 +16,13 @@ const { RangePicker } = DatePicker
 const Article = () => {
   const navigate = useNavigate()
   const { cateList } = useCate()
-  
+
   // init formValue
   const [reqData, setReqData] = useState({
-    state: '', 
-    cate_id: '', 
-    start_date: '',
+    state: 0,
+    cate_id: 0,
+    pub_date: dayjs(new Date()).format('YYYY-MM-DD HH:mm'),
+    start_date: '', 
     end_date: '',
     page: 1,
     perpage: 5,
@@ -27,13 +30,19 @@ const Article = () => {
 
   const [articleList, setArticleList] = useState([])
   const [count, setCount] = useState(0)
+  const [url, setUrl] = useState('')
   useEffect(() => {
     async function getList() {
       const res = await getArticleListAPI(reqData)
       setCount(res.data.total)
       setArticleList(res.data.data)
     }
-    getList()
+    if (!reqData.start_date && reqData.state === 0 && reqData.cate_id === 0) { 
+      console.log(!reqData.start_date)
+      console.log(reqData.state === 0)
+      console.log(reqData.cate_id === 0)
+      getList() 
+    }
   }, [reqData])
 
   const state = {
@@ -42,18 +51,19 @@ const Article = () => {
     3: <Tag color='grey'>Draft</Tag>,
   }
   const columns = [
-    // problem: show img
     {
       title: 'Cover',
       dataIndex: 'cover_img',
       width: 120,
       render: cover_img => {
         const cover = JSON.parse(cover_img)
-        const imageUrl = cover[0].url.replace(/^\//, '')
-        const url = `http://127.0.0.1:3007/${imageUrl}`
+        if (cover.length > 0) {
+          const imageUrl = cover[0].url.replace(/^\//, '')
+          setUrl(`http://127.0.0.1:3007/${imageUrl}`)
+        }
         return <img
           id='url'
-          src={url || img404}
+          src={cover.length > 0 ? url : img404}
           width={80}
           height={60}
           alt=""
@@ -95,10 +105,10 @@ const Article = () => {
       render: data => {
         return (
           <Space size="middle">
-            <Button 
-              type="primary" 
-              shape="circle" 
-              icon={<EditOutlined />} 
+            <Button
+              type="primary"
+              shape="circle"
+              icon={<EditOutlined />}
               onClick={() => navigate(`/publish?id=${data.id}`)}
             />
             <Popconfirm
@@ -122,34 +132,35 @@ const Article = () => {
   ]
 
   // get form data
-  const onFinish = (formValue) => {
-    console.log(formValue)
+  const onFinish = async (formValue) => {
     setReqData({
       ...reqData,
-      cate_id: formValue.cate_id, 
-      state: formValue.state, 
-      start_date: formValue.date[0].format('YYYY-MM-DD'),
-      end_date: formValue.date[1].format('YYYY-MM-DD')
+      cate_id: formValue.cate_id,
+      state: formValue.state,
+      start_date: formValue.date ? dayjs(formValue.date[0]).format('YYYY-MM-DD HH:mm') : '',
+      end_date: formValue.date ? dayjs(formValue.date[1]).format('YYYY-MM-DD HH:mm') : ''
     })
+    console.log('reqdata')
     console.log(reqData)
-    console.log(reqData)
-    useEffect(() => {
-      async function getList() {
-        const res = await getArticlesBySelectAPI(reqData)
-        setCount(res.data.total)
-        setArticleList(res.data.data)
-      }
-      getList()
-    }, [reqData])
+
+
+    const res = await getArticlesBySelectAPI(reqData)
+    const total = res.data.total
+    const data = res.data.data
+    console.log(total)
+    console.log(data)
+
+    setCount(total)
+    setArticleList(data)
   }
 
   // change page 
   const onPageChange = (page) => {
     setReqData({
-      ...reqData, 
+      ...reqData,
       page
     })
-    
+
   }
   // delete article
   const onConfirm = async (data) => {
@@ -158,7 +169,7 @@ const Article = () => {
       ...reqData
     })
   }
-  
+
   return (
     <div>
       <Card
@@ -207,9 +218,9 @@ const Article = () => {
       <Card title={`According to the filter criteria, ${count} results were found:`}>
         <Table rowKey="id" columns={columns} dataSource={articleList} pagination={{
           total: count,
-          pageSize: reqData.perpage, 
+          pageSize: reqData.perpage,
           onChange: onPageChange
-          }} />
+        }} />
       </Card>
     </div>
   )

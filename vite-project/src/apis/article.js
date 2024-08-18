@@ -34,15 +34,15 @@ export function getArticleInfoAPI (id) {
 export function updateArticleByIdAPI (data) {
     return request({
         url: '/my/article/updatearticle', 
-        methor: 'POST', 
+        method: 'POST', 
         data
     })
 }
 
-export function getArticlesBySelectAPI (data) {    
+export function getArticlesBySelectAPI (data) {
     return request({
         url: '/my/article/getArticles', 
-        methor: 'GET', 
+        method: 'POST', 
         data
     })
 }

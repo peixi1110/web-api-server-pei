@@ -3,6 +3,7 @@ const fs = require('fs')
 
 module.exports.uploadAvatar = (req, res) => {
     const files = req.files;
+    var url = []
     console.log(files)
     if (!files) {
         url = []
@@ -12,8 +13,8 @@ module.exports.uploadAvatar = (req, res) => {
         });
     }
 
-    const url = files.map(file => ({
-        url:  `/public/avatar/${file.filename}`}
+    url = files.map(files => ({
+        url:  `/public/avatar/${files.filename}`}
     ))
 
     res.json({

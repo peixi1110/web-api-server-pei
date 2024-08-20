@@ -199,8 +199,7 @@ module.exports.getArticlesBySelect = (req, res) => {
         if (err) {
             return res.cc(err)
         }
-
-        console.log(req.body)
+        
         const state = req.body.state
         const cate_id = req.body.cate_id
         const start_date = req.body.start_date ? parseDateTime(req.body.start_date) : ''

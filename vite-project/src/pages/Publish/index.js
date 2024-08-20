@@ -74,6 +74,7 @@ const Publish = () => {
 
   // upload covers & show
   const onUploadChange = (value) => {
+    console.log(value.file)
     setImageList(value.fileList)
   }
 

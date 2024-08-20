@@ -20,7 +20,6 @@ const UserInfo = () => {
       if (url[0]) {
         const avatarUrl = url[0].url.replace(/^\//, '')
         setAvatar(`http://127.0.0.1:3007/${avatarUrl}`)
-        console.log(avatarUrl)
       }
     }
     getAvatar()
@@ -40,18 +39,22 @@ const UserInfo = () => {
       title="My Information"
       className='userInfoCard'
     >
-      {avatar.length > 0 &&
-        <Meta
+      <div className='userInfoRow'>
+        <strong className='label'>
+          Avatar:
+        </strong>
+        <span className='content'>
+        <Meta 
           avatar={
             <Avatar
               shape="square"
               src={avatar.length > 0 ? avatar : img404}
               className='avatar'
-            // size={'large'}
             />
           }
         />
-      }
+        </span>
+      </div>
       <p className='userInfoRow'>
         <strong className='label'>
           Id:

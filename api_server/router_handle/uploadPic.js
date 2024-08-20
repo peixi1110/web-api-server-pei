@@ -3,6 +3,7 @@ const fs = require('fs')
 
 module.exports.uploadPic = (req, res) => {
     const files = req.files
+    var url = []
     if (!files) {
         url = []
         return res.status(400).json({
@@ -11,7 +12,7 @@ module.exports.uploadPic = (req, res) => {
         });
     }
 
-    const url = files.map(file => ({
+    url = files.map(file => ({
         url:  `/public/cover/${file.filename}`}
     ))
 

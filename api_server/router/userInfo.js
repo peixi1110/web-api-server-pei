@@ -9,7 +9,7 @@ const {update_userinfo_schema, update_userpwd_schema, update_avatar_schema} = re
 
 router.get('/userinfo', userInfo.getUserInfo)
 
-router.post('/userinfo', expressjoi(update_userinfo_schema), userInfo.updateUserInfo)
+router.post('/update/userinfo', expressjoi(update_userinfo_schema), userInfo.updateUserInfo)
 
 router.post('/update/password', expressjoi(update_userpwd_schema), userInfo.updatePwd)
 

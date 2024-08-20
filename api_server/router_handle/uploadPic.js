@@ -31,13 +31,24 @@ module.exports.readPic = (req, res) => {
     const imageUrl = keys.length > 0 ? keys[0] : null;
     // // splicing path
     const imagePath = path.join(__dirname, '..', imageUrl)
-    console.log(imagePath)
     // // send pic 
     fs.readFile(imagePath, 'binary', (err, data) => {
         if (err) {
-            res.status(404).send('Error reading     image!')
+            res.status(404).send('Error reading image!')
         }
 
         res.send(data)
     })
+}
+
+
+module.exports.deletePic = (req, res) => {
+    // const filePath = req.body.url
+    // fs.unlink(filePath, (err) => {
+    //     if (err) {
+    //         res.cc(err)
+    //     } else {
+    //         res.cc('Delete cover image seccussful!', 0)
+    //     }
+    // })
 }

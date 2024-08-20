@@ -11,4 +11,6 @@ router.post('/cover', uploadPic.array('cover_img', 3), picutres.uploadPic)
 
 router.post('/cover/read', picutres.readPic)
 
+router.delete('/cover/delete', picutres.deletePic)
+
 module.exports = router 

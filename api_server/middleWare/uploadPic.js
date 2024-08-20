@@ -1,7 +1,6 @@
 const multer = require('multer');
 const path = require('path');
 
-
 // store 
 const pictureStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -15,8 +14,6 @@ const pictureStorage = multer.diskStorage({
   }
 });
 
-// const prePictureStorage = multer.memoryStorage();
-
 // fliter
 const fileFilter = (req, file, cb) => {
   // only image 
@@ -28,21 +25,12 @@ const fileFilter = (req, file, cb) => {
 };
 
 // init 
-const uploadPic = multer({ 
+const uploadPic = multer({
   storage: pictureStorage,
   limits: {
     fileSize: 1024 * 1024 * 30  // file must under 30MB
   },
-  fileFilter: fileFilter 
+  fileFilter: fileFilter
 })
 
-// const preUploadPic = multer({ 
-//   storage: prePictureStorage,
-//   limits: {
-//     fileSize: 1024 * 1024 * 30  // file must under 30MB
-//   },
-//   fileFilter: fileFilter
-// })
-
 module.exports = uploadPic
-// module.exports = {preUploadPic, uploadPic}

@@ -62,8 +62,10 @@ module.exports.updatePwd = (req, res) => {
 }
 
 module.exports.updateAvatar = (req, res) => {
+    const avatar = JSON.stringify(req.body.avatar) 
+    const id = req.body.id
     const sqlUpdateAvatar = 'UPDATE user_info SET avatar=? WHERE id=?'
-    db.query(sqlUpdateAvatar, [req.body.avatar, req.user.id], (err, results) => {
+    db.query(sqlUpdateAvatar, [avatar, id], (err, results) => {
         if (err) {
             res.cc(err)
         }

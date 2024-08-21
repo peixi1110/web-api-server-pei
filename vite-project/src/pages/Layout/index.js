@@ -5,6 +5,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { clearUserInfo, fetchUserInfo } from '@/store/modules/user' 
+import logo from '@/assets/logo2.png'
 
 
 const { Header, Sider } = Layout
@@ -60,7 +61,9 @@ const MyLayout = () => {
   return (
     <Layout>
       <Header className="header">
-        <div className="logo" />
+        <div className="logo">
+        <img className="login-logo" src={logo} alt="" />
+        </div>
         <div className="user-info">
           <span className="user-name">{nickname? nickname : name}</span>
           <span className="user-logout">

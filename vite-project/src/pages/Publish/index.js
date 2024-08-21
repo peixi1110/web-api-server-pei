@@ -1,6 +1,6 @@
 import { Card, Breadcrumb, Form, Button, Input, Space, Select, message, Radio, Upload } from 'antd'
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Await, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
@@ -21,7 +21,7 @@ const Publish = () => {
   const navigate = useNavigate()
   // get token 
   const token = getToken()
-  
+
   // set states
   const [imageList, setImageList] = useState([])    // init image list
   const [imageType, setImageType] = useState(1)    // init image type
@@ -30,9 +30,17 @@ const Publish = () => {
   // upload data
   const onFinish = async (value) => {
     // check whether type && length match 
-    // todo
-    if (imageList.length > imageType)
-      return message.warning('Image type and number of image are not match!')
+    if (imageType === 0 && imageList.length > 0) {
+      return message.warning('Please change cover type to "Single Picture" or "Triple Pictures", or handle delete cover images uploaded.')
+    } else if (imageType === 1 && imageList.length === 0) {
+      return message.warning('No cover imnage! Please change cover type to "None Picture" or upload ome cover image.')
+    } else if (imageType === 1 && imageList.length > 1) {
+      return message.warning('Please select "Triple Pictures"!')
+    } else if (imageType === 3 && imageList.length === 1) {
+      return message.warning('Please change cover type to "Single Picture", or upload 1 to 2 cover images. ')
+    } else if (imageType === 3 && imageList.length === 0) {
+      return message.warning('Please change cover type to "None Picture", or upload 2 to 3 cover images. ')
+    }
 
     //get data
     const { title, content, cate_id, state } = value
@@ -40,7 +48,7 @@ const Publish = () => {
     const pub_date = dayjs(new Date()).format('YYYY-MM-DD HH:mm')
 
     // set data
-    const cover_img = imageList.map(item => {  
+    const cover_img = imageList.map(item => {
       if (item.response)
         return item.response.url[0]
       else
@@ -49,16 +57,19 @@ const Publish = () => {
     const reqData = {
       title,
       content,
-      cover_img: cover_img, 
+      cover_img: cover_img,
       cover_img_type: imageType,
       cate_id,
       author_id,
-      pub_date, 
+      pub_date,
       state: state
     }
-    
 
     if (articleId) {
+      deleteList.forEach(async url => {
+        const delUrl = url.replace(/^http:\/\/127\.0\.0\.1:3007/, '') 
+        const res = await deletePicAPI({url: delUrl}) 
+      })
       await updateArticleByIdAPI({ ...reqData, id: articleId })
       message.success('Update successful!')
       navigate('/article')
@@ -67,24 +78,25 @@ const Publish = () => {
       message.success('Publish successful!')
       navigate('/article')
     }
-
-    // delete images
-    await deleteList.forEach(url => deletePicAPI(url))
   }
 
   // upload covers & show
   const onUploadChange = (value) => {
-    console.log(value.file)
     setImageList(value.fileList)
   }
 
   // remove cover, set toDeleteList, when click 'finish', delete all no-use cover 
-  const onRemoveChange = (value) => {
-    const imageDel = value.url
-    SetDeleteList([
-      ...deleteList, 
-      imageDel
-    ])
+  const onRemoveChange = async (value) => {
+    if (!articleId) {
+      const imageDel = value.response.url[0]
+      await deletePicAPI(imageDel)
+    } else {
+      const imageDel = value.url
+      SetDeleteList([
+        ...deleteList,
+        imageDel
+      ])
+    }
   }
 
   // change type
@@ -108,7 +120,7 @@ const Publish = () => {
       })
       const coverList = JSON.parse(data.cover_img)
       setImageType(data.cover_img_type)
-      setImageList(coverList.map(item => { return {url: `http://127.0.0.1:3007${item.url}`} }))
+      setImageList(coverList.map(item => { return { url: `http://127.0.0.1:3007${item.url}` } }))
     }
     if (articleId) {
       getArticleDetail()
@@ -159,11 +171,11 @@ const Publish = () => {
               <Radio.Group onChange={onTypeChange} >
                 {/* <Radio.Group> */}
                 <Radio value={1}>Single Picture</Radio>
-                <Radio value={3}>Triple Picture</Radio>
+                <Radio value={3}>Triple Pictures</Radio>
                 <Radio value={0}>None Picture</Radio>
               </Radio.Group>
             </Form.Item>
-            { imageType > 0 && 
+            {imageType > 0 &&
               <Upload
                 name='cover_img'
                 action={'http://127.0.0.1:3007/public/cover'}
@@ -176,8 +188,8 @@ const Publish = () => {
                 fileList={imageList}
                 multiple
               >
-                { imageList.length < imageType && 
-                <div style={{ marginTop: 8 }}>
+                {imageList.length < imageType &&
+                  <div style={{ marginTop: 8 }}>
                     <PlusOutlined />
                   </div>
                 }

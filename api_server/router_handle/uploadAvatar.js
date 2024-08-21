@@ -1,10 +1,10 @@
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs');
+const { url } = require('inspector');
 
 module.exports.uploadAvatar = (req, res) => {
     const files = req.files;
     var url = []
-    console.log(files)
     if (!files) {
         url = []
         return res.status(400).json({
@@ -44,6 +44,13 @@ module.exports.readAvatar = (req, res) => {
 }
 
 module.exports.deleteAvatar = (req, res) => {
-    const filePath = req.body
-    
+    const filePath = req.body.url
+    const toDelete = path.join(__dirname, '..', filePath)
+    fs.unlink(toDelete, (err) => {
+        if (err) {
+            res.cc(err)
+        } else {
+            res.cc('Delete cover image seccussful!', 0)
+        }
+    })
 }

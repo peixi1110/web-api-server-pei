@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button, Card, Avatar } from 'antd';
 const { Meta } = Card
 import './index.scss'
-import img404 from '@/assets/error.png'
+import img404 from '@/assets/error2.png'
 import { useEffect, useState } from 'react';
 import { getUserInfoAPI } from '@/apis/userInfo';
 

@@ -44,12 +44,13 @@ module.exports.readPic = (req, res) => {
 
 
 module.exports.deletePic = (req, res) => {
-    // const filePath = req.body.url
-    // fs.unlink(filePath, (err) => {
-    //     if (err) {
-    //         res.cc(err)
-    //     } else {
-    //         res.cc('Delete cover image seccussful!', 0)
-    //     }
-    // })
+    const filePath = req.body.url
+    const toDelete = path.join(__dirname, '..', filePath)
+    fs.unlink(toDelete, (err) => {
+        if (err) {
+            res.cc(err)
+        } else {
+            res.cc('Delete cover image seccussful!', 0)
+        }
+    })
 }

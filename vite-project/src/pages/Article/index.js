@@ -22,7 +22,7 @@ const Article = () => {
     state: 0,
     cate_id: 0,
     pub_date: dayjs(new Date()).format('YYYY-MM-DD HH:mm'),
-    start_date: '', 
+    start_date: '',
     end_date: '',
     page: 1,
     perpage: 5,
@@ -30,18 +30,14 @@ const Article = () => {
 
   const [articleList, setArticleList] = useState([])
   const [count, setCount] = useState(0)
-  const [url, setUrl] = useState('')
   useEffect(() => {
     async function getList() {
       const res = await getArticleListAPI(reqData)
       setCount(res.data.total)
       setArticleList(res.data.data)
     }
-    if (!reqData.start_date && reqData.state === 0 && reqData.cate_id === 0) { 
-      console.log(!reqData.start_date)
-      console.log(reqData.state === 0)
-      console.log(reqData.cate_id === 0)
-      getList() 
+    if (!reqData.start_date && reqData.state === 0 && reqData.cate_id === 0) {
+      getList()
     }
   }, [reqData])
 
@@ -57,13 +53,16 @@ const Article = () => {
       width: 120,
       render: cover_img => {
         const cover = JSON.parse(cover_img)
+        var url
         if (cover.length > 0) {
           const imageUrl = cover[0].url.replace(/^\//, '')
-          setUrl(`http://127.0.0.1:3007/${imageUrl}`)
+          url = `http://127.0.0.1:3007/${imageUrl}`
+        } else {
+          url = img404
         }
         return <img
           id='url'
-          src={cover.length > 0 ? url : img404}
+          src={url}
           width={80}
           height={60}
           alt=""
@@ -88,18 +87,18 @@ const Article = () => {
       title: 'Publish Date',
       dataIndex: 'pub_date'
     },
-    {
-      title: 'Read',
-      dataIndex: 'read_count'
-    },
-    {
-      title: 'Comment',
-      dataIndex: 'comment_count'
-    },
-    {
-      title: 'Like',
-      dataIndex: 'like_count'
-    },
+    // {
+    //   title: 'Read',
+    //   dataIndex: 'read_count'
+    // },
+    // {
+    //   title: 'Comment',
+    //   dataIndex: 'comment_count'
+    // },
+    // {
+    //   title: 'Like',
+    //   dataIndex: 'like_count'
+    // },
     {
       title: 'Operate',
       render: data => {
@@ -140,15 +139,10 @@ const Article = () => {
       start_date: formValue.date ? dayjs(formValue.date[0]).format('YYYY-MM-DD HH:mm') : '',
       end_date: formValue.date ? dayjs(formValue.date[1]).format('YYYY-MM-DD HH:mm') : ''
     })
-    console.log('reqdata')
-    console.log(reqData)
-
 
     const res = await getArticlesBySelectAPI(reqData)
     const total = res.data.total
     const data = res.data.data
-    console.log(total)
-    console.log(data)
 
     setCount(total)
     setArticleList(data)

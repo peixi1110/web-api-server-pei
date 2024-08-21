@@ -7,7 +7,7 @@ import { getToken } from '@/utils'
 import { getUserInfoAPI, updateAvatarAPI, updateUserInfoAPI } from '@/apis/userInfo'
 import Cropper from 'react-easy-crop'
 import getCroppedImg from '@/utils/crop'
-import { uploadAvatarAPI } from '@/apis/pictures'
+import { deleteAvatarAPI, uploadAvatarAPI } from '@/apis/pictures'
 
 const Edit = () => {
     const [form] = Form.useForm()
@@ -28,12 +28,14 @@ const Edit = () => {
     const [zoom, setZoom] = useState(1)
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
 
+    // avatar data to delete
+    const [avatarToDel, setAvatarToDel] = useState([])
+
     // update user info
     const onFinish = async (values) => {
         const { nickname, email } = values
 
         const avatar = avatarList.map(item => {
-            console.log(item)
             if (item.response)
                 return item.response.url[0]
             else
@@ -49,7 +51,11 @@ const Edit = () => {
             id: userInfo?.id,
             avatar: avatar
         }
-        console.log(avatarData)
+
+        avatarToDel.forEach(async url => {
+            const delUrl = url.replace(/^http:\/\/127\.0\.0\.1:3007/, '') 
+            await deleteAvatarAPI({url: delUrl})
+        })
 
         await updateUserInfoAPI(userData)
         await updateAvatarAPI(avatarData)
@@ -60,7 +66,6 @@ const Edit = () => {
 
     const beforeUpload = (value) => {
         const file = value.file
-        console.log(file)
         if (file && file instanceof File) {
             setCurrentImage(URL.createObjectURL(file))
             setIsCropModalVisible(true)
@@ -93,11 +98,20 @@ const Edit = () => {
                 const res = await uploadAvatarAPI(avatar)
                 const url = res.data.url
                 setAvatarList(url.map(url => { return url }))
-                console.log(avatarList)
             } else {
-                console.log('not file')
+                message.error('No file!')
             }
         }
+    }
+
+    // delete avatar
+    const onRemove = (value) => {
+        const urlDel = value.url
+        setAvatarToDel([
+            ...avatarToDel, 
+            urlDel
+        ])
+        setAvatarList([])
     }
 
     // auto get userinfo & fill in 
@@ -139,6 +153,7 @@ const Edit = () => {
                         action={'http://127.0.0.1:3007/public/avatar'}
                         headers={{ 'Authorization': `${token}` }}
                         customRequest={beforeUpload}
+                        onRemove={onRemove}
                         listType="picture-card"
                         showUploadList
                         maxCount={1}
@@ -148,9 +163,6 @@ const Edit = () => {
                             status: 'done',
                             url: file.url ? `http://127.0.0.1:3007${file.url}` : URL.createObjectURL(file),
                         }))}
-                        onRemove={() => {
-                            setAvatarList([]);
-                        }}
                     >
                         {avatarList.length < 1 &&
                             <div style={{ marginTop: 8 }}>

@@ -1,0 +1,2 @@
+import{r as o,b3 as a,H as c}from"./index-CmMWvdQH.js";import{u as i}from"./useForceUpdate-CF4ixbCY.js";function b(){let s=arguments.length>0&&arguments[0]!==void 0?arguments[0]:!0;const e=o.useRef({}),t=i(),r=a();return c(()=>{const n=r.subscribe(u=>{e.current=u,s&&t()});return()=>r.unsubscribe(n)},[]),e.current}const m="/assets/error-DvVbD6LR.png";export{m as i,b as u};
+//# sourceMappingURL=error-C6iLmEKj.js.map
